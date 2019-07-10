@@ -6,8 +6,8 @@ set title
 set ruler
 set autoindent
 set smartindent
-set tabstop=2
-set shiftwidth=2
+set tabstop=4
+set shiftwidth=4
 set expandtab
 set backspace=indent,eol,start
 set mouse=a
@@ -34,7 +34,7 @@ let g:gruvbox_contrast_dark='hard'
 
 " highlight Normal ctermbg=NONE
 
-let g:plug_url_format = 'git@github-hobo0xcc:%s.git'
+let g:plug_url_format = 'https://github.com/%s.git'
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#python_path = 'python3'
 
@@ -70,14 +70,25 @@ Plug 'Shougo/vinarise.vim'
 Plug 'keith/swift.vim'
 " Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " Plug 'deoplete-plugins/deoplete-clang'
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
+" Plug 'ncm2/ncm2'
+" Plug 'roxma/nvim-yarp'
+" autocmd BufEnter * call ncm2#enable_for_buffer()
+" set completeopt=noinsert,menuone,noselect
+" Plug 'ncm2/ncm2-bufword'
+" Plug 'ncm2/ncm2-path'
+" Plug 'prabirshrestha/async.vim'
+" Plug 'natebosch/vim-lsc'
+" Plug 'prabirshrestha/vim-lsp'
+" Plug 'autozimu/LanguageClient-neovim', {
+"     \ 'branch': 'next',
+"     \ 'do': 'bash install.sh',
+"     \ }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'junegunn/fzf'
 Plug 'derekwyatt/vim-scala'
 Plug 'terryma/vim-multiple-cursors'
+Plug 'neoclide/coc.nvim', { 'do': 'install.sh nightly' }
+" Plug 'dbgx/lldb.nvim'
 
 call plug#end()
 
@@ -108,31 +119,31 @@ au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
 
 let g:syntastic_swift_checkers = ['swiftpm', 'swiftlint']
+let g:deoplete#sources#clang#libclang_path = "/usr/local/opt/llvm/lib/libclang.dylib"
+let g:deoplete#sources#clang#clang_header = "/usr/local/opt/llvm/include/clang/"
 
-let g:deoplete#sources#clang#libclang_path = '/usr/lib/llvm-6.0/lib/libclang.so.1'
-
-set hidden
-
-let g:LanguageClient_serverCommands = {
-      \ 'go': ['go-langserver'],
-      \ 'rust': ['~/.cargo/bin/rustup', 'run', 'stable', 'rls'],
-      \ 'scala': ['metals-vim'],
-      \}
+" let g:LanguageClient_serverCommands = {
+"       \ 'go': ['go-langserver'],
+"       \ 'rust': ['rustup', 'run', 'stable', 'rls'],
+"       \ 'scala': ['metals-vim'],
+"       \ 'c': ['cquery'],
+"       \ 'cpp': ['cquery'],
+"       \}
 
 let g:go_fmt_command = "goimports"
 let g:go_def_mapping_enabled = 0
 let g:go_doc_keywordprg_enabled = 0
 
-let g:LanguageClient_loadSettings = 1
-let g:LanguageClient_settingPath = '~/.config/nvim/settings.json'
-set completefunc=LanguageClient#complete
+" let g:LanguageClient_loadSettings = 1
+" let g:LanguageClient_settingPath = '~/.config/nvim/settings.json'
+" set completefunc=LanguageClient#complete
+set omnifunc=LanguageClient#complete
 set formatexpr=LanguageClient_textDocument_rangeFormatting()
  
 
 nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-" Or map each action separately
 nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-nnoremap <silent> gd :call LanguageClient#textDocument_definition()<CR>
+nnoremap <silent> gd :call LanguageClient#textDocument_definition({'gotoCmd': 'split'})<CR>
 nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
 
 autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
@@ -201,5 +212,11 @@ nnoremap <space>s6 6j
 nnoremap <space>s7 7j
 nnoremap <space>s8 8j
 nnoremap <space>s9 9j
+
+nmap <silent>gd <Plug>(coc-definition)
+nmap <silent>gy <Plug>(coc-type-definition)
+nmap <silent>gi <Plug>(coc-implementation)
+nmap <silent>[c <Plug>(coc-diagnostic-prev)
+nmap <silent>]c <Plug>(coc-diagnostic-next)
 
 nnoremap ; :

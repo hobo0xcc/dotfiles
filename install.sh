@@ -8,6 +8,12 @@ FILES=(
     "$HOME/Develop/dotfiles/emacs/init.el"
     #alacritty
     "$HOME/Develop/dotfiles/alacritty/alacritty.yml"
+    # zsh
+    "$HOME/Develop/dotfiles/zsh/.zshrc"
+    # lldb
+    "$HOME/Develop/dotfiles/lldb/.lldbinit"
+    # tmux
+    "$HOME/Develop/dotfiles/tmux/.tmux.conf"
 )
 
 LINKS=(
@@ -18,6 +24,12 @@ LINKS=(
     "$HOME/.emacs.d/init.el"
     # alacritty
     "$HOME/.config/alacritty/alacritty.yml"
+    # zsh
+    "$HOME/.zshrc"
+    # lldb
+    "$HOME/.lldbinit"
+    # tmux
+    "$HOME/.tmux.conf"
     )
 
 # backup

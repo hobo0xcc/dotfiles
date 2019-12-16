@@ -6,8 +6,8 @@ set title
 set ruler
 set autoindent
 set smartindent
-set tabstop=4
-set shiftwidth=4
+set tabstop=2
+set shiftwidth=2
 set expandtab
 set backspace=indent,eol,start
 set mouse=a
@@ -24,11 +24,13 @@ set noundofile
 set relativenumber
 set scrolloff=999
 set background=dark
+set shortmess+=I
 
-colorscheme gruvbox
+colorscheme challenger_deep " gruvbox
 if (has("nvim"))
-    let $NVIM_TUI_ENABLE_TRUE_COLOR=1
-  endif
+  set termguicolors
+  " let $NVIM_TUI_ENABLE_TRUE_COLOR=1
+endif
 
 let g:gruvbox_contrast_dark='hard'
 
@@ -37,6 +39,16 @@ let g:gruvbox_contrast_dark='hard'
 let g:plug_url_format = 'https://github.com/%s.git'
 let g:deoplete#enable_at_startup = 1
 let g:deoplete#sources#jedi#python_path = 'python3'
+
+function! BuildComposer(info)
+  if a:info.status != 'unchanged' || a:info.force
+    if has('nvim')
+      !cargo build --release --locked
+    else
+      !cargo build --release --locked --no-default-features --features json-rpc
+    endif
+  endif
+endfunction
 
 call plug#begin('~/VimPlugin')
 
@@ -68,7 +80,7 @@ Plug 'ap/vim-buftabline'
 Plug 'fidian/hexmode'
 Plug 'Shougo/vinarise.vim'
 Plug 'keith/swift.vim'
-" Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " Plug 'deoplete-plugins/deoplete-clang'
 " Plug 'ncm2/ncm2'
 " Plug 'roxma/nvim-yarp'
@@ -79,20 +91,25 @@ Plug 'keith/swift.vim'
 " Plug 'prabirshrestha/async.vim'
 " Plug 'natebosch/vim-lsc'
 " Plug 'prabirshrestha/vim-lsp'
-" Plug 'autozimu/LanguageClient-neovim', {
-"     \ 'branch': 'next',
-"     \ 'do': 'bash install.sh',
-"     \ }
+Plug 'autozimu/LanguageClient-neovim', {
+    \ 'branch': 'next',
+    \ 'do': 'bash install.sh',
+    \ }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'junegunn/fzf'
 Plug 'derekwyatt/vim-scala'
 Plug 'terryma/vim-multiple-cursors'
-Plug 'neoclide/coc.nvim', { 'do': 'install.sh nightly' }
-" Plug 'dbgx/lldb.nvim'
+" Plug 'neoclide/coc.nvim', { 'do': 'install.sh nightly' }
+Plug 'dbgx/lldb.nvim'
+Plug 'ElmCast/elm-vim'
+Plug 'challenger-deep-theme/vim', { 'as': 'challenger-deep' }
+Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
+Plug 'jvoorhis/coq.vim'
 
 call plug#end()
 
 let NERDTreeWinSize=20
+let NERDTreeShowHidden=1
 let g:rbpt_colorpairs = [
     \ ['brown',       'RoyalBlue3'],
     \ ['Darkblue',    'SeaGreen3'],
@@ -122,13 +139,15 @@ let g:syntastic_swift_checkers = ['swiftpm', 'swiftlint']
 let g:deoplete#sources#clang#libclang_path = "/usr/local/opt/llvm/lib/libclang.dylib"
 let g:deoplete#sources#clang#clang_header = "/usr/local/opt/llvm/include/clang/"
 
-" let g:LanguageClient_serverCommands = {
-"       \ 'go': ['go-langserver'],
-"       \ 'rust': ['rustup', 'run', 'stable', 'rls'],
-"       \ 'scala': ['metals-vim'],
-"       \ 'c': ['cquery'],
-"       \ 'cpp': ['cquery'],
-"       \}
+let g:LanguageClient_serverCommands = {
+      \ 'go': ['go-langserver'],
+      \ 'rust': ['rustup', 'run', 'stable', 'rls'],
+      \ 'scala': ['metals-vim'],
+      \ 'c': ['clangd'],
+      \ 'cpp': ['clangd'],
+      \ 'python': ['/usr/local/bin/pyls'],
+      \ 'haskell': ['hie-wrapper']
+      \}
 
 let g:go_fmt_command = "goimports"
 let g:go_def_mapping_enabled = 0
@@ -136,8 +155,8 @@ let g:go_doc_keywordprg_enabled = 0
 
 " let g:LanguageClient_loadSettings = 1
 " let g:LanguageClient_settingPath = '~/.config/nvim/settings.json'
-" set completefunc=LanguageClient#complete
-set omnifunc=LanguageClient#complete
+set completefunc=LanguageClient#complete
+" set omnifunc=LanguageClient#complete
 set formatexpr=LanguageClient_textDocument_rangeFormatting()
  
 
@@ -148,6 +167,7 @@ nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
 
 autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
 autocmd BufRead,BufNewFile *.asm let b:deoplete_disable_auto_complete = 0
+" autocmd BufRead,BufNewFile *.md set wrap
 
 nnoremap <space>t :NERDTreeToggle<CR>
 nnoremap <space>/ :vsplit<CR>
@@ -162,7 +182,7 @@ nnoremap <space>s <C-w>j
 nnoremap <space>d <C-w>l
 
 let g:airline_powerline_fonts=1
-let g:airline_theme='base16'
+let g:airline_theme="challenger_deep" "'base16'
 
 let g:EasyMotion_keys='hjklasdfgyuiopqwertnmzxcvbHJKLASDFGYUIOPQWERTNMZXCVB'
 let g:EasyMotion_leader_key="\\"
@@ -170,24 +190,24 @@ let g:EasyMotion_grouping=1
 hi EasyMotionTarget ctermbg=none ctermfg=red
 hi EasyMotionShade ctermbg=none ctermfg=blue
 
-inoremap <C-a> <Left>
-inoremap <C-w> <Up>
-inoremap <C-s> <Down>
-inoremap <C-d> <Right>
+" inoremap <C-a> <Left>
+" inoremap <C-w> <Up>
+" inoremap <C-s> <Down>
+" inoremap <C-d> <Right>
 inoremap <CR> <Return>
 nnoremap <C-c> i
 nnoremap <space>rc :e ~/.config/nvim/init.vim<CR>
-nnoremap <space><space> ldiwh
-inoremap <S-Left> <ESC>^i
-inoremap <S-Right> <ESC>$a
-inoremap <S-Up> <Up><Up><Up><Up><Up>
-inoremap <S-Down> <Down><Down><Down><Down><Down>
-nnoremap <S-Left> <ESC>^i
-nnoremap <S-Right> <ESC>$a
-nnoremap <S-Up> <Up><Up><Up><Up><Up>
-nnoremap <S-Down> <Down><Down><Down><Down><Down>
-nnoremap <space>n :bnext<CR>
-nnoremap <space>b :bprev<CR>
+nnoremap <space><space> :terminal<CR>
+nnoremap <S-Left> b
+nnoremap <S-Right> w
+" nnoremap <S-Left> <ESC>^i
+" nnoremap <S-Right> <ESC>$a
+" inoremap <S-Left> <ESC>^i
+" inoremap <S-Right> <ESC>$a
+nnoremap <S-Up> 10k
+nnoremap <S-Down> 10j
+nnoremap <space><Right> :bnext<CR>
+nnoremap <space><Left> :bprev<CR>
 tnoremap <C-c> <C-\><C-n>
 nnoremap <space>j :w !trans -b -sl=en -tl=ja<CR>
 
@@ -213,10 +233,13 @@ nnoremap <space>s7 7j
 nnoremap <space>s8 8j
 nnoremap <space>s9 9j
 
-nmap <silent>gd <Plug>(coc-definition)
-nmap <silent>gy <Plug>(coc-type-definition)
-nmap <silent>gi <Plug>(coc-implementation)
-nmap <silent>[c <Plug>(coc-diagnostic-prev)
-nmap <silent>]c <Plug>(coc-diagnostic-next)
+" nmap <silent>gd <Plug>(coc-definition)
+" nmap <silent>gy <Plug>(coc-type-definition)
+" nmap <silent>gi <Plug>(coc-implementation)
+" nmap <silent>[c <Plug>(coc-diagnostic-prev)
+" nmap <silent>]c <Plug>(coc-diagnostic-next)
+
+nmap <C-s> <Plug>(vinarise_next_screen)
+nmap <C-w> <Plug>(vinarise_prev_screen)
 
 nnoremap ; :

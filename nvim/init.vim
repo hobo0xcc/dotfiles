@@ -25,8 +25,12 @@ set relativenumber
 set scrolloff=999
 set background=dark
 set shortmess+=I
+set ignorecase
 
-colorscheme challenger_deep " gruvbox
+colorscheme molokai " afterglow
+let g:afterglow_blackout=1
+let g:afterglow_inherit_background=1
+let s:background = "#000000"
 if (has("nvim"))
   set termguicolors
   " let $NVIM_TUI_ENABLE_TRUE_COLOR=1
@@ -61,13 +65,13 @@ Plug 'crusoexia/vim-monokai'
 Plug 'joshdick/onedark.vim'
 Plug 'nanotech/jellybeans.vim'
 Plug 'drewtempelmeyer/palenight.vim'
-Plug 'vim-airline/vim-airline'
-Plug 'vim-airline/vim-airline-themes'
+" Plug 'vim-airline/vim-airline'
+" Plug 'vim-airline/vim-airline-themes'
 Plug 'Shougo/vimshell.vim'
 Plug 'Shougo/vimproc.vim'
 Plug 'mattn/emmet-vim'
 Plug 'kien/rainbow_parentheses.vim'
-Plug 'easymotion/vim-easymotion'
+" Plug 'easymotion/vim-easymotion'
 Plug 'tpope/vim-pathogen'
 Plug 'vim-syntastic/syntastic'
 Plug 'davidhalter/jedi-vim'
@@ -81,30 +85,25 @@ Plug 'fidian/hexmode'
 Plug 'Shougo/vinarise.vim'
 Plug 'keith/swift.vim'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-" Plug 'deoplete-plugins/deoplete-clang'
-" Plug 'ncm2/ncm2'
-" Plug 'roxma/nvim-yarp'
-" autocmd BufEnter * call ncm2#enable_for_buffer()
-" set completeopt=noinsert,menuone,noselect
-" Plug 'ncm2/ncm2-bufword'
-" Plug 'ncm2/ncm2-path'
-" Plug 'prabirshrestha/async.vim'
-" Plug 'natebosch/vim-lsc'
-" Plug 'prabirshrestha/vim-lsp'
-Plug 'autozimu/LanguageClient-neovim', {
-    \ 'branch': 'next',
-    \ 'do': 'bash install.sh',
-    \ }
+Plug 'honza/vim-snippets'
+" Plug 'autozimu/LanguageClient-neovim', {
+"     \ 'branch': 'next',
+"     \ 'do': 'bash install.sh',
+"     \ }
 Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
 Plug 'derekwyatt/vim-scala'
 Plug 'terryma/vim-multiple-cursors'
-" Plug 'neoclide/coc.nvim', { 'do': 'install.sh nightly' }
+Plug 'SirVer/ultisnips'
 Plug 'dbgx/lldb.nvim'
 Plug 'ElmCast/elm-vim'
 Plug 'challenger-deep-theme/vim', { 'as': 'challenger-deep' }
-Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
+" Plug 'euclio/vim-markdown-composer', { 'do': function('BuildComposer') }
 Plug 'jvoorhis/coq.vim'
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'danilo-augusto/vim-afterglow'
+Plug 'itchyny/lightline.vim'
 
 call plug#end()
 
@@ -138,10 +137,40 @@ au Syntax * RainbowParenthesesLoadBraces
 let g:syntastic_swift_checkers = ['swiftpm', 'swiftlint']
 let g:deoplete#sources#clang#libclang_path = "/usr/local/opt/llvm/lib/libclang.dylib"
 let g:deoplete#sources#clang#clang_header = "/usr/local/opt/llvm/include/clang/"
+call deoplete#custom#option('auto_complete', v:false)
+
+inoremap <silent><expr> <TAB>
+      \ pumvisible() ? "\<C-n>" :
+      \ <SID>check_back_space() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+nmap <silent> <TAB> <Plug>(coc-range-select)
+xmap <silent> <TAB> <Plug>(coc-range-select)
+" Use `[g` and `]g` to navigate diagnostics
+nmap <silent> [g <Plug>(coc-diagnostic-prev)
+nmap <silent> ]g <Plug>(coc-diagnostic-next)
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use K to show documentation in preview window.
+nnoremap <silent> K :call <SID>show_documentation()<CR>
+nnoremap <Leader>d :<C-u>CocList diagnostics<CR>
+
+function! s:show_documentation()
+  if (index(['vim','help'], &filetype) >= 0)
+    execute 'h '.expand('<cword>')
+  else
+    call CocAction('doHover')
+  endif
+endfunction
 
 let g:LanguageClient_serverCommands = {
       \ 'go': ['go-langserver'],
-      \ 'rust': ['rustup', 'run', 'stable', 'rls'],
+      \ 'rust': ['ra_lsp_server'],
       \ 'scala': ['metals-vim'],
       \ 'c': ['clangd'],
       \ 'cpp': ['clangd'],
@@ -153,21 +182,78 @@ let g:go_fmt_command = "goimports"
 let g:go_def_mapping_enabled = 0
 let g:go_doc_keywordprg_enabled = 0
 
+let g:lightline = {
+        \ 'colorscheme': 'simpleblack',
+        \ 'mode_map': {'c': 'NORMAL'},
+        \ 'active': {
+        \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ] ]
+        \ },
+        \ 'component_function': {
+        \   'modified': 'LightlineModified',
+        \   'readonly': 'LightlineReadonly',
+        \   'fugitive': 'LightlineFugitive',
+        \   'filename': 'LightlineFilename',
+        \   'fileformat': 'LightlineFileformat',
+        \   'filetype': 'LightlineFiletype',
+        \   'fileencoding': 'LightlineFileencoding',
+        \   'mode': 'LightlineMode'
+        \ }
+        \ }
+
+function! LightlineModified()
+  return &ft =~ 'help\|vimfiler\|gundo' ? '' : &modified ? '+' : &modifiable ? '' : '-'
+endfunction
+
+function! LightlineReadonly()
+  return &ft !~? 'help\|vimfiler\|gundo' && &readonly ? 'x' : ''
+endfunction
+
+function! LightlineFilename()
+  return ('' != LightlineReadonly() ? LightlineReadonly() . ' ' : '') .
+        \ (&ft == 'vimfiler' ? vimfiler#get_status_string() :
+        \  &ft == 'unite' ? unite#get_status_string() :
+        \  &ft == 'vimshell' ? vimshell#get_status_string() :
+        \ '' != expand('%:t') ? expand('%:t') : '[No Name]') .
+        \ ('' != LightlineModified() ? ' ' . LightlineModified() : '')
+endfunction
+
+function! LightlineFugitive()
+  if &ft !~? 'vimfiler\|gundo' && exists('*fugitive#head')
+    return fugitive#head()
+  else
+    return ''
+  endif
+endfunction
+
+function! LightlineFileformat()
+  return winwidth(0) > 70 ? &fileformat : ''
+endfunction
+
+function! LightlineFiletype()
+  return winwidth(0) > 70 ? (&filetype !=# '' ? &filetype : 'no ft') : ''
+endfunction
+
+function! LightlineFileencoding()
+  return winwidth(0) > 70 ? (&fenc !=# '' ? &fenc : &enc) : ''
+endfunction
+
+function! LightlineMode()
+  return winwidth(0) > 60 ? lightline#mode() : ''
+endfunction
+
 " let g:LanguageClient_loadSettings = 1
 " let g:LanguageClient_settingPath = '~/.config/nvim/settings.json'
-set completefunc=LanguageClient#complete
+" set completefunc=LanguageClient#complete
 " set omnifunc=LanguageClient#complete
-set formatexpr=LanguageClient_textDocument_rangeFormatting()
+" set formatexpr=LanguageClient_textDocument_rangeFormatting()
  
 
-nnoremap <F5> :call LanguageClient_contextMenu()<CR>
-nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
-nnoremap <silent> gd :call LanguageClient#textDocument_definition({'gotoCmd': 'split'})<CR>
-nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
+" nnoremap <F5> :call LanguageClient_contextMenu()<CR>
+" nnoremap <silent> K :call LanguageClient#textDocument_hover()<CR>
+" nnoremap <silent> gd :call LanguageClient#textDocument_definition({'gotoCmd': 'split'})<CR>
+" nnoremap <silent> <F2> :call LanguageClient#textDocument_rename()<CR>
 
 autocmd CompleteDone * if pumvisible() == 0 | pclose | endif
-autocmd BufRead,BufNewFile *.asm let b:deoplete_disable_auto_complete = 0
-" autocmd BufRead,BufNewFile *.md set wrap
 
 nnoremap <space>t :NERDTreeToggle<CR>
 nnoremap <space>/ :vsplit<CR>
@@ -180,9 +266,11 @@ nnoremap <space>a <C-w>h
 nnoremap <space>w <C-w>k
 nnoremap <space>s <C-w>j
 nnoremap <space>d <C-w>l
+nnoremap <Leader>t :FZF<CR>
+nnoremap <Leader>h :Rg<CR>
 
 let g:airline_powerline_fonts=1
-let g:airline_theme="challenger_deep" "'base16'
+let g:airline_theme="afterglow" "'base16'
 
 let g:EasyMotion_keys='hjklasdfgyuiopqwertnmzxcvbHJKLASDFGYUIOPQWERTNMZXCVB'
 let g:EasyMotion_leader_key="\\"
@@ -233,11 +321,7 @@ nnoremap <space>s7 7j
 nnoremap <space>s8 8j
 nnoremap <space>s9 9j
 
-" nmap <silent>gd <Plug>(coc-definition)
-" nmap <silent>gy <Plug>(coc-type-definition)
-" nmap <silent>gi <Plug>(coc-implementation)
-" nmap <silent>[c <Plug>(coc-diagnostic-prev)
-" nmap <silent>]c <Plug>(coc-diagnostic-next)
+nnoremap <C-a> G$vgg
 
 nmap <C-s> <Plug>(vinarise_next_screen)
 nmap <C-w> <Plug>(vinarise_prev_screen)

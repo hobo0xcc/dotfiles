@@ -67,7 +67,7 @@ let g:UltiSnipsSnippetDirectories=["/Users/hobo/Develop/cp/snippets"]
 let g:UltiSnipsExpandTrigger="<tab>"
 
 let g:lightline = {
-        \ 'colorscheme': 'one',
+        \ 'colorscheme': 'simpleblack',
         \ 'mode_map': {'c': 'NORMAL'},
         \ 'active': {
         \   'left': [ [ 'mode', 'paste' ], [ 'fugitive', 'filename' ] ]

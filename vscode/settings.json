@@ -1,0 +1,13 @@
+{
+    "C_Cpp.updateChannel": "Insiders",
+    "editor.fontFamily": "Source Han Code JP",
+    "editor.fontSize": 18,
+    "workbench.colorTheme": "Gruvbox Dark Hard",
+    "workbench.iconTheme": "Monokai Classic Icons",
+    "editor.tabCompletion": "on",
+    "debug.console.fontSize": 20,
+    "debug.console.fontFamily": "JetBrains Mono",
+    "terminal.integrated.shell.windows": "C:\\Windows\\System32\\cmd.exe",
+    "competitive-programming-helper.firstTime": false,
+    "competitive-programming-helper.defaultLanguage": "Python"
+}
